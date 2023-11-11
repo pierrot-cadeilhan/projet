@@ -540,7 +540,7 @@ def CreatePage(graph):
     
     #CONSTRUCTION DE HEAD    
     head = Build('title', graph.info['name'])
-    head += Build('link', params={'rel': '"stylesheet"', 'href':'"myStyle.css"'}, standAlone = True)
+    head += Build('link', params={'rel': '"stylesheet"', 'href':'"style.css"'}, standAlone = True)
     
     #CONSTRUCTION DE BODY
     #---Partie1
