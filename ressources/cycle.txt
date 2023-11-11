@@ -1,0 +1,9 @@
+<GRAPHE Name="Cycle", Author="Pierrot", Encoding="Pierrot">
+<SOMMETS>
+A; B; C; D; E; F;
+</SOMMETS>
+<ARCS>
+A : B : 1; B : C : 2; C : D : 3;
+D : E : 4; E : F : 5; F : A : 6;
+</ARCS>
+</GRAPHE>
