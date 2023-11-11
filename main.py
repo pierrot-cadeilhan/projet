@@ -616,7 +616,7 @@ def CreatePartie4(graph):
             mini = (node, maxDists[node])
     tree1 = trees[mini[0]]
     tree1.Render(ratio=2)
-    idee1 = Build('h3', r"Sommet minimisant la distance maximale:", alinea=False)
+    idee1 = Build('h3', f"Sommet minimisant la distance maximale: {tree1.Root().name}", alinea=False)
     idee1 += Build('img', params={"src":f'"../figures/{tree1.info["name"]}.png"',
                                  "alt":f'"Représentation de {tree1.info["name"]}"',
                                  "title":f'"{tree1.info["name"]}"',
@@ -630,7 +630,7 @@ def CreatePartie4(graph):
             mini = (node, totDists[node])
     tree2 = trees[mini[0]]
     tree2.Render(ratio=2)
-    idee2 = Build('h3', r"Sommet minimisant la distance totale:", alinea=False)
+    idee2 = Build('h3', f"Sommet minimisant la distance totale: {tree2.Root().name}", alinea=False)
     idee2 += Build('img', params={"src":f'"../figures/{tree2.info["name"]}.png"',
                                  "alt":f'"Représentation de {tree2.info["name"]}"',
                                  "title":f'"{tree2.info["name"]}"',
@@ -644,7 +644,7 @@ def CreatePartie4(graph):
             maxi = (node, maxDists[node])
     tree3 = trees[maxi[0]]
     tree3.Render(ratio=2)
-    idee3 = Build('h3', r"Sommet maximisant la distance maximale:", alinea=False)
+    idee3 = Build('h3', f"Sommet maximisant la distance maximale: {tree3.Root().name}", alinea=False)
     idee3 += Build('img', params={"src":f'"../figures/{tree3.info["name"]}.png"',
                                  "alt":f'"Représentation de {tree3.info["name"]}"',
                                  "title":f'"{tree3.info["name"]}"',
@@ -658,7 +658,7 @@ def CreatePartie4(graph):
             maxi = (node, totDists[node])
     tree4 = trees[maxi[0]]
     tree4.Render(ratio=2)
-    idee4 = Build('h3', r"Sommet maximisant la distance totale:", alinea=False)
+    idee4 = Build('h3', f"Sommet maximisant la distance totale: {tree4.Root().name}", alinea=False)
     idee4 += Build('img', params={"src":f'"../figures/{tree4.info["name"]}.png"',
                                  "alt":f'"Représentation de {tree4.info["name"]}"',
                                  "title":f'"{tree4.info["name"]}"',
