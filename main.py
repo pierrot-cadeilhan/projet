@@ -536,6 +536,14 @@ def Build(balise, content='', params={}, standAlone=False, alinea=True):
         return [f'<{balise}{paramsTxt}>{content[0]}</{balise}>']
 
 def BuildList(balise, contents, params={}, standAlone=False, alinea=True):
+    """BuildListe(balise, content, params, standAlone, alinea)
+    Construit une suite d'éléments HTMLs de même type:
+    ex: [1, 2, 3] -> ["<td>1</td>", "<td>2</td>", "<td>3</td>"]
+    -> balise: texte de la balise
+    -> contents: liste de liste de lignes, ou liste de lignes
+    -> params: dictionnaire de paramètres
+    -> standAlone: booléen indiquant si balise unique
+    -> alinea: booléen de mise en forme"""
     htmlList = []
     for content in contents:
         if type(content) != list:
