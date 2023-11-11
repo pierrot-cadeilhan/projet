@@ -733,7 +733,7 @@ if __name__ == "__main__":
         print(f"Generation of '{g.info['name']}.html' webpage...")
         HTML = CreatePage(g)
         print(f'Export...')
-        ExportPage(HTML, f"./webpage/{g.info['name']}.html")
+        ExportPage(HTML, f"./website/{g.info['name']}.html")
         print('Done\n')
         
         a=input('Quit ?[Y/N]\n>>>')
