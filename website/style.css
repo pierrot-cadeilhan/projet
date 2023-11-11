@@ -1,0 +1,74 @@
+@font-face {
+	font-family: 'f2';
+	src: url('fonts/LTCushion.ttf');
+}
+
+@font-face {
+	font-family: 'f1';
+	src: url('fonts/LTCushionLight.ttf');
+}
+
+body{
+	background-image: url("textures/pattern3.png");
+	background-repeat: repeat;
+}
+h1{
+	text-align: center;
+	font-family: 'f1';
+	font-size: 100px;
+}
+h2{
+	font-family: 'f2';
+	font-size: 30px;
+}
+img{
+	border-radius: min(5vh, 5vw);
+	box-align: center;
+	height: auto;
+	display: block;
+  	margin-left: auto;
+  	margin-right: auto;
+  	width: 50vw;
+}
+
+partie{
+	border-bottom: 1px solid #99b6bc;
+}
+
+
+table{
+	border: 1px solid #99b6bc;
+  border-collapse:collapse;
+ 	font-family: 'f2';
+	text-decoration-color: #99b6bc;
+	text-align: center;
+	margin-right: auto;
+	margin-left: auto;
+}
+th, td{
+	font-size:20px;
+	width: 80px;
+	height: 30px;
+}
+th{
+	background-color: #99b6bc;
+	color: #e4eae0;	
+}
+td{
+	border: 1px solid #99b6bc;	
+  background-color: #e4eae0;
+	color: #99b6bc;	
+}
+caption{
+	font-family: 'f1';
+	font-size: 25px;
+	text-align: center;
+}
+
+.highlight{
+	color: red;
+}
+
+.shadowed {
+	box-shadow: 5px 5px 10px #888888;
+}
