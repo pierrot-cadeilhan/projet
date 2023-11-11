@@ -188,7 +188,7 @@ class Graph:
             - tout point d'une autre partie connexe de graph
             n'est pas dans cet arbre"""
        
-        t = Tree(set(), set())
+        t = Tree(set(), set(), name=f'Dijkstra_{self.info["name"]}_en_{root.name}')
         
         #Tous les sommets dans toExplore | tree.nodes sont clés de dist
         toExplore = {root}
@@ -229,7 +229,7 @@ class Graph:
         return t
     
     
-    def Digraph(self, lspDisplay = False, name=None):
+    def Digraph(self, lspDisplay = False, lspColor='red', name=None, ratio=0.6):
         """graph.Digraph()
         Construit la représentation svg de graph."""
         
@@ -248,28 +248,28 @@ class Graph:
             diag.node(node.name, shape = 'circle')
             
         for arc in lsp.arcs:
-            diag.edge(arc.source.name, arc.target.name, label=str(arc.weight), color='red')
+            diag.edge(arc.source.name, arc.target.name, label=str(arc.weight), color=lspColor)
         for node in lsp.nodes:
-            diag.node(node.name, shape = 'circle', color='red')
+            diag.node(node.name, shape = 'circle', color=lspColor)
         
-        diag.attr(ratio='0.6')
+        diag.attr(ratio=str('ratio'))
         diag.attr(rankdir='LR')
         return diag
     
-    def Display(self, lspDisplay = False, name=None):
+    def Display(self, lspDisplay = False, name=None, ratio=0.6):
         """graph.Display()
         Affiche une représentation en svg de graph."""
         if name == None:
             name = './figures/'+self.info['name']
-        diag = self.Digraph(lspDisplay=lspDisplay, name=name)
+        diag = self.Digraph(lspDisplay=lspDisplay, name=name, ratio=ratio)
         diag.view()
 
-    def Render(self, lspDisplay=False, name=None):
+    def Render(self, lspDisplay=False, name=None, ratio=0.6):
         """graph.Render()
         Sauvegarde une représentation en png de graph."""
         if name == None:
             name = './figures/'+self.info["name"]
-        diag = self.Digraph(lspDisplay=lspDisplay, name=name)
+        diag = self.Digraph(lspDisplay=lspDisplay, name=name, ratio=ratio)
         diag.format = 'png'
         diag.render()
         
@@ -322,23 +322,33 @@ class Tree(Graph):
         #La formule est définie car l'arbre est connexe sans cycle
         return [node for node in self.nodes if len(node.ArcsTowards(self)) == 0][0]
     
-    def Digraph(self, lspDisplay = False, name=None):
+    def Digraph(self, lspDisplay = False, lspColor='red', name=None, ratio = 0.6):
         """tree.Digraph()
         Construit la représentation svg de tree."""        
-       
         if name == None:
-            name = self.info['name']
-        diag = gv.Digraph(f'{name}', filename=f'figures/{name}', format='svg')
-
-        for arc in self.arcs:
-            diag.edge(arc.source.name, arc.targetS, label=str(arc.weight))
-        for node in self.nodes:
+            name = './figures/'+self.info["name"]
+        diag = gv.Digraph(f'{self.info["name"]}', filename=f'{name}', format='svg')
+        
+        lsp = Path(set(), Node(), set())
+        if lspDisplay:
+            lsp = self.LongestShortestPath()
+            
+        for arc in self.arcs-lsp.arcs:
+            diag.edge(arc.source.name, arc.target.name, label=str(arc.weight))
+        for node in self.nodes-lsp.nodes:
             diag.node(node.name, shape = 'circle')
+            
+        for arc in lsp.arcs:
+            diag.edge(arc.source.name, arc.target.name, label=str(arc.weight), color=lspColor)
+        for node in lsp.nodes:
+            diag.node(node.name, shape = 'circle', color=lspColor)
+        
         diag.node(self.Root().name, shape='doublecircle')
         
-        diag.attr(ratio='0.8')
-        return diag
-    
+        
+        diag.attr(ratio=str(ratio))
+        return diag 
+        
     def PathTowards(self, node):
         """tree.PathTowards(node)
         Renvoie le chemin connectant la racine de tree à node."""
@@ -388,7 +398,21 @@ class Path(Graph):
         p.start = self.start
         return p
         
-        
+    def __str__(self):
+        if self.IsTrivial():
+            return f'[{self.start.name}] <> 0'
+        if self.IsNot():
+            return f'[{self.start.name}]   [{self.EndingNode()}] <> -'
+        else:
+            txt = f'[{self.start.name}]'
+            node = self.start
+            while len(node.ArcsFrom(self)) > 0:
+                a = list(node.ArcsFrom(self))[0]
+                txt += f'-->[{a.target.name}]'
+                node = a.target
+            txt += f' <> {self.Length():.2f}'
+        return txt
+    
 #---Custom methods
     def Length(self):
         """path.Length()
@@ -398,7 +422,7 @@ class Path(Graph):
         else:
             return sum([arc.weight for arc in self.arcs])        
     
-    def Digraph(self, lspDisplay = False, name=None):
+    def Digraph(self, lspDisplay = False, name=None, ratio=0.6):
         """path.Digraph()
         Construit la représentation svg de path."""
         
@@ -413,7 +437,7 @@ class Path(Graph):
             diag.node(node.name, shape = 'circle')
         diag.node(self.start.name, shape='doublecircle')
         
-        diag.attr(ratio='0.8')
+        diag.attr(ratio=str(ratio))
         return diag
     
     def EndingNode(self):
@@ -511,54 +535,52 @@ def Build(balise, content='', params={}, standAlone=False, alinea=True):
     else:
         return [f'<{balise}{paramsTxt}>{content[0]}</{balise}>']
 
-def BuildList(balise, liste, alinea=False):
+def BuildList(balise, contents, params={}, standAlone=False, alinea=True):
     htmlList = []
-    for elt in liste:
-        if type(elt)==float:
-            elt = f'{elt:^.1f}'
-        htmlList += Build(balise, elt, alinea=alinea)
+    for content in contents:
+        if type(content) != list:
+            content = [content]
+        htmlList += Build(balise, content, params=params, standAlone=standAlone, alinea=alinea)
     return htmlList
 
 def MatrixToTable(mat, title='Tableau'):
     """MatrixToTable(mat)
     Renvoie une str encodant en table HTML mat."""
-    content = Build('caption', title)
+    content = Build('caption', title, alinea=False)
     for row in mat:
         htmlRow = BuildList('td', row, alinea=False)
         content += Build('tr', htmlRow)
     html = Build('table', content)
     return html
 
-def CreatePage(graph):
-    """CreatePage(graph)
-    Créée la page associée à graph."""
-    BASE = [n for n in g.nodes]
-    BASE.sort()
-    g.Render(True)
-    path = g.LongestShortestPath()
-    
-    
-    #CONSTRUCTION DE HEAD    
-    head = Build('title', graph.info['name'])
-    head += Build('link', params={'rel': '"stylesheet"', 'href':'"style.css"'}, standAlone = True)
-    
-    #CONSTRUCTION DE BODY
-    #---Partie1
-    partie1 = Build('h2', r'1.\Détails:')
+
+
+
+def CreatePartie1(graph):
+    partie1 = Build('h2', r'1.\Détails:', alinea=False)
     mat = [[key+':', graph.info[key]] for key in graph.info]
-    partie1 += MatrixToTable(mat, title=f"Détails de {graph.info['name']}")
-    #---Partie2
-    partie2 = Build('h2', r'2.\Analyse graphique:')
+    partie1 += MatrixToTable(mat, title=f"Détails de {graph.info['name']}") 
+    return Build('div', partie1, {'class': '"partie"'})
+    
+
+def CreatePartie2(graph):
+    graph.Render(True)
+    partie2 = Build('h2', r'2.\Analyse graphique:', alinea=False)
     image = Build('img', params={"src":f'"../figures/{graph.info["name"]}.png"',
                                  "alt":f'"Représentation de {graph.info["name"]}"',
                                  "title":f'"{graph.info["name"]}"',
                                  "class":'"shadowed"'}, standAlone = True)
     partie2 += image
-    #---Partie3
-    partie3 = Build('h2', r"3.\Matrice d'adjacence:")
+    return Build('div', partie2, {'class': '"partie column"'})
+
+def CreatePartie3(graph):
+    BASE = list(graph.nodes)
+    BASE.sort()
+    path = graph.LongestShortestPath()
+    partie3 = Build('h2', r"3.\Matrice d'adjacence:", alinea=False)
     mat = g.AdjacencyMatrix(BASE)
     rows = Build("caption", f"Table d'adjacence de {graph.info['name']}")
-    rows += Build('thead', BuildList('th', mat[0]))
+    rows += Build('thead', BuildList('th', mat[0], alinea=False))
     for i in range(1, len(mat)):
         row = []
         for j in range(len(mat[i])):
@@ -571,79 +593,154 @@ def CreatePage(graph):
         rows += Build('tr', row)
     table = Build('table', rows, params={"class":'"shadowed"'})
     partie3 += table
+    return Build('div', partie3, {'class': '"partie column"'})
+
+def CreatePartie4(graph):
+    BASE = list(graph.nodes)
+    BASE.sort()
+    partie4 = Build('h2', r"4.\Sommets remarquables:", alinea=False)
+    trees = {node:g.Dijkstra(node) for node in BASE}
     
-    body = Build('h1', f'Etude de {graph.info["name"]}')
-    body += Build('div', partie1, {'class': '"partie"'})
-    body += Build('div', partie2, {'class': '"partie"'})
-    body += Build('div', partie3, {'class': '"partie"'})
+    maxDists = {node0: max([trees[node0].Depth(node1) for node1 in BASE]) for node0 in BASE}
+    mini = (BASE[0], maxDists[BASE[0]])
+    for node in BASE[1:]:
+        if mini[1] > maxDists[node]:
+            mini = (node, maxDists[node])
+    tree1 = trees[mini[0]]
+    tree1.Render(ratio=2)
+    idee1 = Build('h3', r"Sommet minimisant la distance maximale:", alinea=False)
+    idee1 += Build('img', params={"src":f'"../figures/{tree1.info["name"]}.png"',
+                                 "alt":f'"Représentation de {tree1.info["name"]}"',
+                                 "title":f'"{tree1.info["name"]}"',
+                                 "class":'"shadowed"'}, standAlone = True)
+    idee1 = Build('div', idee1, {'class':'"column"'})
+    
+    totDists = {node0: sum([trees[node0].Depth(node1) for node1 in BASE]) for node0 in BASE}
+    mini = (BASE[0], totDists[BASE[0]])
+    for node in BASE[1:]:
+        if mini[1] > totDists[node]:
+            mini = (node, totDists[node])
+    tree2 = trees[mini[0]]
+    tree2.Render(ratio=2)
+    idee2 = Build('h3', r"Sommet minimisant la distance totale:", alinea=False)
+    idee2 += Build('img', params={"src":f'"../figures/{tree2.info["name"]}.png"',
+                                 "alt":f'"Représentation de {tree2.info["name"]}"',
+                                 "title":f'"{tree2.info["name"]}"',
+                                 "class":'"shadowed"'}, standAlone = True)
+    idee2 = Build('div', idee2, {'class':'"column"'})
+    
+    maxDists = {node0: max([trees[node0].Depth(node1) for node1 in BASE]) for node0 in BASE}
+    maxi = (BASE[0], maxDists[BASE[0]])
+    for node in BASE[1:]:
+        if maxi[1] < maxDists[node]:
+            maxi = (node, maxDists[node])
+    tree3 = trees[maxi[0]]
+    tree3.Render(ratio=2)
+    idee3 = Build('h3', r"Sommet maximisant la distance maximale:", alinea=False)
+    idee3 += Build('img', params={"src":f'"../figures/{tree3.info["name"]}.png"',
+                                 "alt":f'"Représentation de {tree3.info["name"]}"',
+                                 "title":f'"{tree3.info["name"]}"',
+                                 "class":'"shadowed"'}, standAlone = True)
+    idee3 = Build('div', idee3, {'class':'"column"'})
+    
+    totDists = {node0: sum([trees[node0].Depth(node1) for node1 in BASE]) for node0 in BASE}
+    maxi = (BASE[0], totDists[BASE[0]])
+    for node in BASE[1:]:
+        if maxi[1] < totDists[node]:
+            maxi = (node, totDists[node])
+    tree4 = trees[maxi[0]]
+    tree4.Render(ratio=2)
+    idee4 = Build('h3', r"Sommet maximisant la distance totale:", alinea=False)
+    idee4 += Build('img', params={"src":f'"../figures/{tree4.info["name"]}.png"',
+                                 "alt":f'"Représentation de {tree4.info["name"]}"',
+                                 "title":f'"{tree4.info["name"]}"',
+                                 "class":'"shadowed"'}, standAlone = True)
+    idee4 = Build('div', idee4, {'class':'"column"'})
+    
+    partie4 += Build('div', idee1 + idee2 + idee3 + idee4, params={'class':'"row4"'})
+    return Build('div', partie4, params={'class':'"partie"'})
+           
+def CreatePage(graph):
+    """CreatePage(graph)
+    Créée la page associée à graph."""
+    BASE = [n for n in g.nodes]
+    BASE.sort()
+    g.Render(True)
+    path = g.LongestShortestPath()
+    
+    #CONSTRUCTION DE HEAD    
+    head = Build('title', graph.info['name'], alinea = False)
+    head += Build('link', params={'rel': '"icon"', 'href':'"./textures/favicon.ico"', 'type':'"image/x-icon"'}, standAlone = True)
+    head += Build('link', params={'rel': '"stylesheet"', 'href':'"style.css"'}, standAlone = True)
+    
+    #CONSTRUCTION DE BODY
+    #---Partie1
+    partie1 = CreatePartie1(graph)
+    #---Partie2
+    partie2 = CreatePartie2(graph)
+    #---Partie3
+    partie3 = CreatePartie3(graph)
+    #---Partie4
+    partie4 = CreatePartie4(graph)
+                    
+    body = Build('h1', f'Etude de {graph.info["name"]}', alinea=False)
+    body += partie1 + Build('div', partie2 + partie3, params={'class':'"row2"'}) + partie4
     
     #CONSTRUCTION DE LA PAGE
     page = Build('head', head) + Build('body', body)
     HTML = Build('DOCTYPE', 'html', standAlone = True) + Build('html', page)
     return HTML
-    
+
+def ExportPage(HTML, filename):
+    with open(filename, 'w') as file:
+        for line in HTML:
+            file.write(line+'\n')
 
 if __name__ == "__main__":
     p = Parser()
     g = Graph(set(), set())
     
-    g.FromFile(p, './ressources/graphe.txt')
-    BASE = [n for n in g.nodes]
-    BASE.sort()
-    print(f"----------[Matrice d'adjacence de {g.info['name']}]----------")
-    g.Render()
-    print(MatrixToStr(g.AdjacencyMatrix(BASE)))
-    
-    HTML = CreatePage(g)
-    with open(f"./website/{g.info['name']}.html", 'w') as file:
-        for line in HTML:
-            file.write(line+'\n')
-
-    
-    g.FromFile(p, './ressources/cycle.txt')
-    BASE = [n for n in g.nodes]
-    BASE.sort()
-    print(f"----------[Matrice d'adjacence de {g.info['name']}]----------")
-    print(MatrixToStr(g.AdjacencyMatrix(BASE)))
-    g.Render()
-    HTML = CreatePage(g)
-    with open(f"./website/{g.info['name']}.html", 'w') as file:
-        for line in HTML:
-            file.write(line+'\n')
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    #POUR D'AUTRES PARTIES (NOTAMMENT NOEUDS INTERESSANTS)
-    
-    # g.Render(lspDisplay=True)
-    
-    # #CLOSEST NODE TO EVERY POINT (totDist min)
-    # trees = {node:g.Dijkstra(node) for node in BASE}
-    # totDists = {node0: sum([trees[node0].Depth(node1) for node1 in BASE]) for node0 in BASE}
-    
-    # mini = (BASE[0], totDists[BASE[0]])
-    # for node in BASE[1:]:
-    #     if mini[1] > totDists[node]:
-    #         mini = (node, totDists[node])
-    # trees[mini[0]].Display()
-    
-    # #CLOSEST NODE TO EVERY POINT (maxDist min)
-    # trees = {node:g.Dijkstra(node) for node in BASE}
-    # maxDists = {node0: max([trees[node0].Depth(node1) for node1 in BASE]) for node0 in BASE}
-  
-    # mini = (BASE[0], maxDists[BASE[0]])
-    # for node in BASE[1:]:
-    #     if mini[1] > maxDists[node]:
-    #         mini = (node, maxDists[node])
-    # trees[mini[0]].Display()
-    
-
+    print("---------------[PIERROT'S GRAPH VIEWER]---------------")
+    QUIT = False
+    while not QUIT:
+        
+        filename = input("Enter the filename of the graph you want to run:\n>>>")
+        print('')
+        graphLoaded=False
+        while not graphLoaded:
+            try:
+                g.FromFile(p, './ressources/'+filename)
+                graphLoaded=True
+            except:
+                filename = input("Something went wrong, make sure did not make any typo (furthermore check if your file is in the ./ressources directory):\n>>>")        
+                print('')
+        print('Graph loaded succesfully.')
+        
+        a=input("See basic info ?[Y/N]\n>>>")
+        print('')
+        if a.lower() in {'yes', 'y'}:
+            BASE = [n for n in g.nodes]
+            BASE.sort()
+            
+            print("Adjacency matrix:")
+            print(MatrixToStr(g.AdjacencyMatrix(BASE)) + '\n')
+            
+            path = g.LongestShortestPath()
+            print("Longest shortest path between two nodes:")
+            print(path)
+            print('\n')
+        
+        print(f"Generation of '{g.info['name']}.html' webpage...")
+        HTML = CreatePage(g)
+        print(f'Export...')
+        ExportPage(HTML, f"./webpage/{g.info['name']}.html")
+        print('Done\n')
+        
+        a=input('Quit ?[Y/N]\n>>>')
+        if a.lower() in {'y', 'yes'}:
+            QUIT = True
+        else:    
+            print('')
+            
+    print(r"------------------[THANKS ~(°u°)~]------------------")
+        
