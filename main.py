@@ -595,7 +595,7 @@ if __name__ == "__main__":
     print(MatrixToStr(g.AdjacencyMatrix(BASE)))
     
     HTML = CreatePage(g)
-    with open(f"./webpage/{g.info['name']}.html", 'w') as file:
+    with open(f"./website/{g.info['name']}.html", 'w') as file:
         for line in HTML:
             file.write(line+'\n')
 
@@ -607,7 +607,7 @@ if __name__ == "__main__":
     print(MatrixToStr(g.AdjacencyMatrix(BASE)))
     g.Render()
     HTML = CreatePage(g)
-    with open(f"./webpage/{g.info['name']}.html", 'w') as file:
+    with open(f"./website/{g.info['name']}.html", 'w') as file:
         for line in HTML:
             file.write(line+'\n')
     
