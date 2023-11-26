@@ -11,7 +11,7 @@ Created on Sun Oct  8 13:59:06 2023
 #
 #On considèrera que le chemin Path({n1, n2}, {}) est un chemin inexistant entre n1 et n2
 #On pourra ainsi considérer des graphes d'arêtes de poids infinis
-#On considèrera que le chemin Path({n0}, {}) est le chemin entre n0 et n0 sans arête
+#On considèrera que le chemin Path({n0}, {}) est le chemin entre n0 et n0 sans arête, qualifié de trivial
 #On pourra ainsi considérer des graphes d'arêtes de coefficients nuls
 #
 #/!\ et des graphes d'arêtes à poids négatif ? Dijkstra ne marchera pas T^T
@@ -21,13 +21,13 @@ Created on Sun Oct  8 13:59:06 2023
 
 
 #----------------------[Remarques]--------------------
-#J'en suis à corriger les types et à gérer les conventions de notations
-#méthodes et fonctions: Fonction()
-#variables: maSuperVariable
+#Il faut faire l'interface console
+
+#Conventions:
+#méthodes et fonctions: MaFonction()
+#variables: maVariable
 
 #Path n'hérite pas de Tree car n'est pas forcément connexe
-
-
 #--------------------[Fin des remarques]--------------------
 
 
@@ -720,11 +720,17 @@ if __name__ == "__main__":
     p = Parser()
     g = Graph(set(), set())
     
+
     print("---------------[PIERROT'S GRAPH VIEWER]---------------")
     QUIT = False
     while not QUIT:
         
-        filename = input("Enter the filename of the graph you want to run:\n>>>")
+        print("Enter the filename of the graph you want to run:")
+        files = os.listdir('ressources')
+        print('./ressources')
+        for file in files:
+            print(f'|--{file}')
+        filename = input(">>>")
         print('')
         graphLoaded=False
         while not graphLoaded:
@@ -732,7 +738,12 @@ if __name__ == "__main__":
                 g.FromFile(p, './ressources/'+filename)
                 graphLoaded=True
             except:
-                filename = input("Something went wrong, make sure did not make any typo (furthermore check if your file is in the ./ressources directory):\n>>>")        
+                print("Something went wrong, make sure did not make any typo (furthermore check if your file is in the ./ressources directory):")
+                files = os.listdir('ressources')
+                print('./ressources')
+                for file in files:
+                    print(f'|--{file}')
+                filename = input(">>>")        
                 print('')
         print('Graph loaded succesfully.')
         
@@ -741,6 +752,11 @@ if __name__ == "__main__":
         if a.lower() in {'yes', 'y'}:
             BASE = [n for n in g.nodes]
             BASE.sort()
+            
+            print("infos:")
+            for key in g.info:
+                print(f"|{key+' :':<12} {g.info[key]}")
+            print('\n')
             
             print("Adjacency matrix:")
             print(MatrixToStr(g.AdjacencyMatrix(BASE)) + '\n')
@@ -763,4 +779,3 @@ if __name__ == "__main__":
             print('')
             
     print(r"------------------[THANKS ~(°u°)~]------------------")
-        
