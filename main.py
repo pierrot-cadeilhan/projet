@@ -573,13 +573,25 @@ def CreatePartie1(graph):
 
 def CreatePartie2(graph):
     graph.Render(True)
-    partie2 = Build('h2', r'2.\Analyse graphique:', alinea=False)
-    image = Build('img', params={"src":f'"../figures/{graph.info["name"]}.png"',
+    image1 = Build('h3', f'Représentation de {graph.info["name"]}', alinea=False)
+    image1 += Build('img', params={"src":f'"../figures/{graph.info["name"]}.png"',
                                  "alt":f'"Représentation de {graph.info["name"]}"',
                                  "title":f'"{graph.info["name"]}"',
                                  "class":'"shadowed"'}, standAlone = True)
-    partie2 += image
-    return Build('div', partie2, {'class': '"partie column"'})
+    image1 = Build('div', image1, params={"class":'"column"'})
+    
+    dijkstra = graph.Dijkstra(graph.LongestShortestPath().start)
+    dijkstra.Render(True, ratio=2)
+    image2 = Build('h3', f"Plus long plus court chemin", alinea=False)
+    image2 += Build('img', params={"src":f'"../figures/{dijkstra.info["name"]}.png"',
+                                 "alt":f'"Représentation de {dijkstra.info["name"]}"',
+                                 "title":f'"{dijkstra.info["name"]}"',
+                                 "class":'"shadowed"'}, standAlone = True)
+    image2 = Build('div', image2, params={"class":'"column"'})
+    
+    partie2 = Build('h2', r'2.\Analyse graphique:', alinea=False)
+    partie2 += Build('div', image1 + image2, params={'class':'"row2"'})
+    return Build('div', partie2, {'class': '"partie"'})
 
 def CreatePartie3(graph):
     BASE = list(graph.nodes)
@@ -692,7 +704,7 @@ def CreatePage(graph):
     partie4 = CreatePartie4(graph)
                     
     body = Build('h1', f'Etude de {graph.info["name"]}', alinea=False)
-    body += partie1 + Build('div', partie2 + partie3, params={'class':'"row2"'}) + partie4
+    body += partie1 + partie2 + partie3 + partie4
     
     #CONSTRUCTION DE LA PAGE
     page = Build('head', head) + Build('body', body)
