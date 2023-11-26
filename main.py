@@ -30,7 +30,7 @@ Created on Sun Oct  8 13:59:06 2023
 #Path n'hérite pas de Tree car n'est pas forcément connexe
 #--------------------[Fin des remarques]--------------------
 
-
+import os
 import pyparsing as pp
 import graphviz as gv
 
