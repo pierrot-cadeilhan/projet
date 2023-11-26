@@ -30,7 +30,7 @@ h3{
 img{
 	border-radius: min(5vh, 5vw);
 	box-align: center;
-  	height: 80%;
+  	height: auto;
 	width: auto;
 	display: block;
   	margin-left: auto;
