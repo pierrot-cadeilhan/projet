@@ -30,8 +30,8 @@ h3{
 img{
 	border-radius: min(5vh, 5vw);
 	box-align: center;
-  	height: auto;
-	width: 80%;
+  	height: 80%;
+	width: auto;
 	display: block;
   	margin-left: auto;
   	margin-right: auto;
@@ -41,7 +41,8 @@ img{
 .row2{
 	display: grid;
     grid-template-columns: repeat(2, 1fr);
-    width: 100%;
+    width: 80%;
+  	margin-left: 10%;
 }
 
 .row4{
@@ -52,6 +53,7 @@ img{
 
 .column{
 	height: auto;
+	width: auto;
 }
 
 
